@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super AI Transcript</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎙️</text></svg>">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">🎙️</span>
+                <h1>Super AI Transcript</h1>
+            </div>
+            <p class="subtitle">Record, transcribe, and enhance your speech with AI</p>
+        </header>
+        <section class="recording-section glass-card">
+            <h2 class="section-title">
+                <span class="icon">🎤</span>
+                Record or Upload Audio
+            </h2>
+
+            <div class="recording-controls">
+                <button id="recordButton" class="btn btn-primary btn-large" data-recording="false">
+                    <span class="btn-icon">⏺️</span>
+                    <span class="btn-text">Start Recording</span>
+                </button>
+                <div id="recordingTimer" class="recording-timer hidden">
+                    <span class="recording-dot"></span>
+                    <span id="timerDisplay">00:00</span>
+                </div>
+                <canvas id="audioVisualizer" class="audio-visualizer hidden" width="300" height="60"></canvas>
+            </div>
+
+            <div class="divider">
+                <span>or</span>
+            </div>
+            <div class="upload-area" id="uploadArea">
+                <input type="file" id="audioFileInput" accept=".mp3,.wav,.m4a,.webm,.ogg" hidden>
+                <div class="upload-content">
+                    <span class="upload-icon">📁</span>
+                    <p>Drag & drop audio file here</p>
+                    <p class="upload-hint">or click to browse</p>
+                    <p class="upload-formats">Supports: MP3, WAV, M4A, WebM, OGG</p>
+                </div>
+            </div>
+            <div id="fileInfo" class="file-info hidden">
+                <span class="file-icon">🎵</span>
+                <span id="fileName"></span>
+                <button id="removeFile" class="btn-small">✕</button>
+            </div>
+            <button id="transcribeButton" class="btn btn-accent" disabled>
+                <span class="btn-icon">✨</span>
+                <span class="btn-text">Transcribe Audio</span>
+            </button>
+        </section>
+        <section class="transcripts-section glass-card">
+            <h2 class="section-title">
+                <span class="icon">📝</span>
+                Transcripts
+            </h2>
+
+            <div class="transcripts-grid">
+                <div class="transcript-box">
+                    <label for="originalTranscript">
+                        Original Transcript
+                        <span class="badge">Raw</span>
+                    </label>
+                    <textarea id="originalTranscript"
+                        placeholder="Your transcript will appear here after recording or uploading audio. You can also paste text directly here to process it."
+                        rows="8"></textarea>
+                    <div class="transcript-info">
+                        <span id="originalWordCount">0 words</span>
+                    </div>
+                </div>
+                <div class="transcript-box">
+                    <label for="cleanedTranscript">
+                        Cleaned Transcript
+                        <span class="badge badge-success">AI Enhanced</span>
+                    </label>
+                    <textarea id="cleanedTranscript"
+                        placeholder="The AI-cleaned transcript will appear here after processing." rows="8"
+                        readonly></textarea>
+                    <div class="transcript-info">
+                        <span id="cleanedWordCount">0 words</span>
+                        <button id="copyCleanedBtn" class="btn-small" title="Copy to clipboard">📋</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cleaning-controls">
+                <!-- Engine selection removed (Gemini only) -->
+
+                <button id="cleanButton" class="btn btn-primary" disabled>
+                    <span class="btn-icon">✨</span>
+                    <span class="btn-text">Clean Transcript</span>
+                </button>
+            </div>
+        </section>
+        <section class="ai-features-section glass-card">
+            <h2 class="section-title">
+                <span class="icon">🤖</span>
+            </h2>
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="summary">
+                    📊 Smart Summary
+                </button>
+                <button class="tab-btn" data-tab="qa">
+                    💬 Q&A
+                </button>
+                <button class="tab-btn" data-tab="learn">
+                    📚 Learning Tips
+                </button>
+            </div>
+
+            <div class="tab-content">
+                <div id="summaryTab" class="tab-panel active">
+                    <p class="feature-description">
+                        Generate a structured summary with title, key points, and action items.
+                    </p>
+
+                    <button id="generateSummaryBtn" class="btn btn-secondary" disabled>
+                        <span class="btn-icon">📊</span>
+                        <span class="btn-text">Generate Summary</span>
+                    </button>
+                    <div id="summaryResults" class="summary-results hidden">
+                        <div class="summary-title">
+                            <h3 id="summaryTitle">Title</h3>
+                        </div>
+
+                        <div class="summary-section">
+                            <h4>🎯 Key Points</h4>
+                            <ul id="keyPointsList"></ul>
+                        </div>
+
+                        <div class="summary-section">
+                            <h4>✅ Action Items</h4>
+                            <ul id="actionItemsList"></ul>
+                        </div>
+
+                        <div class="summary-section">
+                            <h4>📄 Summary</h4>
+                            <p id="summaryText"></p>
+                        </div>
+                    </div>
+                </div>
+                <div id="qaTab" class="tab-panel">
+                    <p class="feature-description">
+                        Ask questions about your transcript. The AI can analyze what you said,
+                        provide feedback on your speaking, and answer with context from the web.
+                    </p>
+
+                    <div class="qa-input-group">
+                        <input type="text" id="questionInput"
+                            placeholder="e.g., 'What problems did I mention?' or 'Give feedback on my speaking'"
+                            disabled>
+                        <button id="askButton" class="btn btn-secondary" disabled>
+                            <span class="btn-icon">💬</span>
+                            <span class="btn-text">Ask</span>
+                        </button>
+                    </div>
+                    <div class="quick-questions">
+                        <span class="quick-label">Quick questions:</span>
+                        <button class="quick-btn" data-question="What are the main points I mentioned?">Main
+                            points</button>
+                        <button class="quick-btn" data-question="Give me feedback on my speaking style">Speaking
+                            feedback</button>
+                        <button class="quick-btn" data-question="What did I forget to mention?">Missing points</button>
+                    </div>
+                    <div id="answerDisplay" class="answer-display hidden">
+                        <div class="answer-header">
+                            <span class="answer-icon">🤖</span>
+                            <span>AI Answer</span>
+                        </div>
+                        <div id="answerText" class="answer-text"></div>
+                    </div>
+                    <div id="qaHistory" class="qa-history hidden">
+                        <h4>Previous Questions</h4>
+                        <div id="qaHistoryList"></div>
+                    </div>
+                </div>
+                <div id="learnTab" class="tab-panel">
+                    <p class="feature-description">
+                        Get personalized learning suggestions based on what you talked about.
+                        Discover better ways to express ideas and find learning resources.
+                    </p>
+
+                    <div class="topic-focus">
+                        <label for="topicInput">Optional: Focus on specific topic</label>
+                        <input type="text" id="topicInput" placeholder="e.g., 'AI engineering', 'public speaking'">
+                    </div>
+
+                    <button id="getLearningTipsBtn" class="btn btn-secondary" disabled>
+                        <span class="btn-icon">📚</span>
+                        <span class="btn-text">Get Learning Suggestions</span>
+                    </button>
+                    <div id="learningResults" class="learning-results hidden">
+                        <div class="learning-section">
+                            <h4>💡 Better Phrases</h4>
+                            <ul id="betterPhrasesList"></ul>
+                        </div>
+
+                        <div class="learning-section">
+                            <h4>🎯 Missing Points</h4>
+                            <ul id="missingPointsList"></ul>
+                        </div>
+
+                        <div class="learning-section">
+                            <h4>📖 Resources</h4>
+                            <ul id="resourcesList"></ul>
+                        </div>
+
+                        <div class="learning-section">
+                            <h4>🗺️ Learning Roadmap</h4>
+                            <ol id="roadmapList"></ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="history-section glass-card">
+            <h2 class="section-title">
+                <span class="icon">📂</span>
+                Recording History
+                <button id="refreshHistoryBtn" class="btn-small" title="Refresh">🔄</button>
+            </h2>
+            <div id="historyList" class="history-list">
+                <p class="history-empty">No recordings yet. Start by recording or uploading audio!</p>
+            </div>
+        </section>
+        <div id="saveModal" class="modal hidden">
+            <div class="modal-content glass-card">
+                <h3>Save Recording</h3>
+                <p>Save this recording to your history for future reference.</p>
+                <input type="text" id="recordingName" placeholder="Enter recording name">
+                <div class="modal-actions">
+                    <button id="confirmSaveBtn" class="btn btn-primary">Save</button>
+                    <button id="cancelSaveBtn" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+        <div id="deleteModal" class="modal hidden">
+            <div class="modal-content glass-card">
+                <h3>Delete Recording?</h3>
+                <p>Are you sure you want to delete this recording? This action cannot be undone.</p>
+                <div class="modal-actions">
+                    <button id="confirmDeleteBtn" class="btn btn-danger"
+                        style="background-color: #ef4444; color: white;">Delete</button>
+                    <button id="cancelDeleteBtn" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+        <div id="loadingOverlay" class="loading-overlay hidden">
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <p id="loadingText">Processing...</p>
+            </div>
+        </div>
+        <div id="toastContainer" class="toast-container"></div>
+        <footer class="footer">
+            <p>Super AI Transcript &copy; 2025 | Powered by Gemini</p>
+        </footer>
+    </div>
+    <script src="/static/script.js" defer></script>
+</body>
+
+</html>

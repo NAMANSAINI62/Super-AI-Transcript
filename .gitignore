@@ -1,0 +1,25 @@
+# Virtual Environment
+venv/
+bin/
+Include/
+Lib/
+Scripts/
+pyvenv.cfg
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment Variables
+.env
+
+# Database
+*.db
+
+# User Uploads
+uploads/
+
+# OS specific files
+.DS_Store
+Thumbs.db
