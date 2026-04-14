@@ -364,13 +364,16 @@ async function transcribeAudio() {
         if (contentType && contentType.indexOf("application/json") !== -1) {
             data = await response.json();
         } else {
-            const text = await response.text();
-            console.error("Server returned non-JSON response:", text);
-            throw new Error(`Server returned error (${response.status}): ${text.substring(0, 100)}...`);
+            console.error("Server returned non-JSON response");
+            throw new Error(`Server returned error (${response.status})`);
+        }
+        
+        if (!response.ok) {
+            // Prioritize the server's error message (e.g., rate limit violation)
+            throw new Error(data.error || 'Transcription failed');
         }
 
-        if (response.ok) {
-            // Success - update UI
+        // Success - update UI
             originalTranscript.value = data.original_transcript;
             currentRecordingId = data.recording_id;
 
@@ -424,16 +427,16 @@ async function cleanTranscript() {
             })
         });
 
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
 
-        if (response.ok) {
-            cleanedTranscript.value = data.cleaned_transcript;
-            updateWordCount(cleanedTranscript, cleanedWordCount);
-            updateButtonStates();
-            showToast(`Cleaned with ${data.engine_used}!`, 'success');
-        } else {
+        if (!response.ok) {
             throw new Error(data.error || 'Cleaning failed');
         }
+
+        cleanedTranscript.value = data.cleaned_transcript;
+        updateWordCount(cleanedTranscript, cleanedWordCount);
+        updateButtonStates();
+        showToast(`Cleaned with ${data.engine_used}!`, 'success');
 
     } catch (error) {
         console.error('Cleaning error:', error);
@@ -481,14 +484,14 @@ async function generateSummary() {
             })
         });
 
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
 
-        if (response.ok) {
-            displaySummary(data);
-            showToast('Summary generated!', 'success');
-        } else {
+        if (!response.ok) {
             throw new Error(data.error || 'Summary failed');
         }
+
+        displaySummary(data);
+        showToast('Summary generated!', 'success');
 
     } catch (error) {
         console.error('Summary error:', error);

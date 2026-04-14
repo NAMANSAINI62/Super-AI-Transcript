@@ -4,6 +4,7 @@ import tempfile
 import requests
 from flask import Flask, request, jsonify, render_template, send_file, abort
 from flask_cors import CORS
+from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import io
@@ -16,6 +17,7 @@ from database import init_db, save_recording, update_recording, get_all_recordin
 # Configuration
 load_dotenv()
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 CORS(app)
 app.secret_key = os.getenv('SECRET_KEY', 'super_secret_key')
 
