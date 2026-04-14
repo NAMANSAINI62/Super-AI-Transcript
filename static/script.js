@@ -39,7 +39,7 @@ const saveModal = document.getElementById('saveModal');
 let currentAudio = null; // Track currently playing audio
 
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('🚀 Super AI Transcript initialized');
+    console.log('🚀 SecureScript initialized');
 
     // Set up all event listeners
     setupEventListeners();
@@ -353,8 +353,10 @@ async function transcribeAudio() {
     try {
         const response = await fetch('/api/transcribe', {
             method: 'POST',
+            headers: {
+                'X-User-Tier': document.getElementById('userTierSelect').value
+            },
             body: formData
-            // Note: Don't set Content-Type header, browser sets it automatically for FormData
         });
 
         let data;
@@ -412,7 +414,8 @@ async function cleanTranscript() {
         const response = await fetch('/api/clean', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-User-Tier': document.getElementById('userTierSelect').value
             },
             body: JSON.stringify({
                 text: text,
@@ -468,7 +471,10 @@ async function generateSummary() {
     try {
         const response = await fetch('/api/summary', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-User-Tier': document.getElementById('userTierSelect').value
+            },
             body: JSON.stringify({
                 transcript: transcript,
                 recording_id: currentRecordingId
@@ -540,7 +546,10 @@ async function askQuestion() {
     try {
         const response = await fetch('/api/ask', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-User-Tier': document.getElementById('userTierSelect').value
+            },
             body: JSON.stringify({
                 question: question,
                 transcript: transcript,
@@ -604,7 +613,10 @@ async function getLearningTips() {
     try {
         const response = await fetch('/api/learn', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-User-Tier': document.getElementById('userTierSelect').value
+            },
             body: JSON.stringify({
                 transcript: transcript,
                 topic: topic

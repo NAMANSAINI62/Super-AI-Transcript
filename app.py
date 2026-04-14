@@ -2,9 +2,12 @@ import os
 import json
 import tempfile
 import requests
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, render_template, send_file, abort
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import io
+import time
 from dotenv import load_dotenv
 import google.generativeai as genai
 from database import init_db, save_recording, update_recording, get_all_recordings, get_recording_by_id, save_qa, get_audio_data, delete_recording
@@ -15,6 +18,36 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 app.secret_key = os.getenv('SECRET_KEY', 'super_secret_key')
+
+# Bare minimum Rate Limiter setup (using in-memory storage)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"
+)
+
+# Advanced Security: Temporary Ban / Jail System
+BANNED_IPS = {}
+VIOLATION_COUNTS = {}
+
+@app.before_request
+def check_ban():
+    ip = get_remote_address()
+    if ip in BANNED_IPS:
+        if time.time() < BANNED_IPS[ip]:
+            abort(403, description="Temporarily banned for spamming. Please wait 5 minutes.")
+        else:
+            del BANNED_IPS[ip]
+            if ip in VIOLATION_COUNTS:
+                del VIOLATION_COUNTS[ip]
+
+def get_dynamic_limit():
+    """Returns limits based on User Tier (Free vs Premium mock)"""
+    tier = request.headers.get('X-User-Tier', 'Standard')
+    if tier == 'Explorer':
+        return "30 per minute" # Premium tier
+    return "5 per minute"      # Free tier
 
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 if GEMINI_API_KEY: genai.configure(api_key=GEMINI_API_KEY)
@@ -55,6 +88,7 @@ def index():
     return render_template('index.html')
 
 @app.route('/api/transcribe', methods=['POST'])
+@limiter.limit(get_dynamic_limit) 
 def transcribe_audio():
     try:
         if 'audio' not in request.files: 
@@ -170,6 +204,22 @@ def play_recording(id):
     except Exception as e: return jsonify({'error': str(e)}), 500
 
 # Helpers
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    ip = get_remote_address()
+    VIOLATION_COUNTS[ip] = VIOLATION_COUNTS.get(ip, 0) + 1
+    
+    # Strike 5: Jail for 5 minutes
+    if VIOLATION_COUNTS[ip] >= 5:
+        BANNED_IPS[ip] = time.time() + 300 
+        return jsonify(error="Security Violation: You have been temporarily banned for 5 minutes due to API abuse.", banned=True), 403
+        
+    return jsonify(error=f"Too many requests. Please wait a moment. (Violation {VIOLATION_COUNTS[ip]}/5 before ban)"), 429
+
+@app.errorhandler(403)
+def forbidden_handler(e):
+    return jsonify(error=e.description, banned=True), 403
+
 def parse_summary_response(text):
     try: 
         if '{' in text: return json.loads(text[text.find('{'):text.rfind('}')+1]) 

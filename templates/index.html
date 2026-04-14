@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super AI Transcript</title>
+    <title>SecureScript</title>
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎙️</text></svg>">
     <link rel="stylesheet" href="/static/styles.css">
@@ -16,11 +16,20 @@
 <body>
     <div class="container">
         <header class="header">
-            <div class="logo">
-                <span class="logo-icon">🎙️</span>
-                <h1>Super AI Transcript</h1>
+            <div class="header-top" style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+                <div class="tier-toggle" style="background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; display: flex; align-items: center; gap: 10px;">
+                    <span class="tier-label" style="font-size: 0.85rem; color: var(--text-muted);">Usage Tier:</span>
+                    <select id="userTierSelect" style="background: transparent; border: none; color: var(--info); font-weight: bold; outline: none; cursor: pointer;">
+                        <option value="Standard" style="background: #1a1a2e;">Free Plan (5/min)</option>
+                        <option value="Explorer" style="background: #1a1a2e;">Premium Plan (30/min)</option>
+                    </select>
+                </div>
             </div>
-            <p class="subtitle">Record, transcribe, and enhance your speech with AI</p>
+            <div class="logo">
+                <span class="logo-icon">🔒🎙️</span>
+                <h1>SecureScript</h1>
+            </div>
+            <p class="subtitle">AI Transcription with Intelligent Rate Limiting</p>
         </header>
         <section class="recording-section glass-card">
             <h2 class="section-title">
@@ -266,7 +275,7 @@
         </div>
         <div id="toastContainer" class="toast-container"></div>
         <footer class="footer">
-            <p>Super AI Transcript &copy; 2025 | Powered by Gemini</p>
+            <p>SecureScript &copy; 2025 | Powered by Gemini</p>
         </footer>
     </div>
     <script src="/static/script.js" defer></script>
