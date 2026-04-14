@@ -18,6 +18,5 @@ jobs:
       - name: Push to Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        # If your Hugging Face username is different from NAMANSAINI62, 
-        # change NAMANSAINI62 to your actual Hugging Face username below!
-        run: git push --force https://NAMANSAINI62:$HF_TOKEN@huggingface.co/spaces/NAMANSAINI62/super-ai-transcript main
+        # Using the exact username seen in your Hugging Face screenshot
+        run: git push --force https://namansaini2867:$HF_TOKEN@huggingface.co/spaces/namansaini2867/super-ai-transcript main
