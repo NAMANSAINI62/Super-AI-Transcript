@@ -1,3 +1,12 @@
+---
+title: SecureScript
+emoji: 🔒
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+---
+
 # SecureScript: AI Transcription with Intelligent Rate Limiting 🔒🎙️
 
 A full-stack web application for audio transcription, AI-powered text cleaning, smart summarization, Q&A, and learning suggestions.
