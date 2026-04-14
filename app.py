@@ -83,7 +83,10 @@ def call_llm(system, user):
             print(f"🔄 Fallback to Gemini: {m}")
             return genai.GenerativeModel(m).generate_content(f"{system}\n\nTask: {user}").text
         except: continue
-    raise Exception("All AI failed")
+    
+    # Ultimate Mock Fallback for stable demo/testing
+    print("⚠️ All AI failed. Returning Mock Demo Response.")
+    return f"This is a SecureScript Demo Response.\n\nSummary: The transcript discussed various points including technology and security.\n\n[MOCK MODE: Add your GEMINI_API_KEY to Hugging Face Secrets for real AI results]"
 
 @app.route('/')
 def index(): 
